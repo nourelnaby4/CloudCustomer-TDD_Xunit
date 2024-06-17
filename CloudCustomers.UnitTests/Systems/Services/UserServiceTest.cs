@@ -31,7 +31,7 @@ public class UserServiceTest
     }
 
     [Fact]
-    public async Task GetUsers_WhenCalled_ReturnListOfUsers()
+    public async Task GetUsers_OnSuccess_ReturnListOfUsers()
     {
         // Arrange
         var expectedResponse = UserFixture.GetUserTests();
@@ -44,5 +44,21 @@ public class UserServiceTest
 
         // Assert
        result.Should().BeOfType<List<User>>();
+    }
+
+
+    [Fact]
+    public async Task GetUsers_OnNotFound_ReturnNull()
+    {
+        // Arrange
+        var handlerMock = MockHttpMessageHandler<User>.SetupReturn404();
+        var httpClient = new HttpClient(handlerMock.Object);
+        var sut = new UserServices(httpClient);
+
+        // Act
+        var result = await sut.GetUsers();
+
+        // Assert
+        result.Should().BeNull();
     }
 }

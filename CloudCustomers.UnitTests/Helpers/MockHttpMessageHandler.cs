@@ -23,8 +23,30 @@ public static class MockHttpMessageHandler<T> where T : class
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
                "SendAsync",
-               It.IsAny<HttpRequestMessage>(),
-               It.IsAny<CancellationToken>())
+               ItExpr.IsAny<HttpRequestMessage>(),
+               ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(mockResponse);
+
+        return handlerMock;
+    }
+
+    public static Mock<HttpMessageHandler> SetupReturn404()
+    {
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.NotFound)
+        {
+            Content = new StringContent("")
+        };
+
+        mockResponse.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+        var handlerMock = new Mock<HttpMessageHandler>();
+
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+               "SendAsync",
+               ItExpr.IsAny<HttpRequestMessage>(),
+               ItExpr.IsAny<CancellationToken>())
             .ReturnsAsync(mockResponse);
 
         return handlerMock;

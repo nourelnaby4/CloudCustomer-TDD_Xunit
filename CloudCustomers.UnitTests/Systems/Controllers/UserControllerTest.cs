@@ -16,6 +16,9 @@ public class UserControllerTest
     {
         // Arrange
         var sut = new UsersController(_userServicesMock.Object);
+        _userServicesMock
+            .Setup(service => service.GetUsers())
+            .ReturnsAsync(UserFixture.GetUserTests());
 
         // Act
         var result = (OkObjectResult)await sut.Get();

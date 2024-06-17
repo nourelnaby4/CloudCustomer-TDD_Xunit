@@ -1,4 +1,5 @@
 ﻿using CloudCustomers.API.Models;
+using System.Net;
 
 namespace CloudCustomers.API.Services;
 
@@ -18,8 +19,14 @@ public class UserServices : IUserServices
 
     public async Task<List<User>> GetUsers()
     {
-        var usersResponse = await _httpClient.GetAsync("https://example.com");
+        var response = await _httpClient.GetAsync("https://example.com");
 
-        return new List<User> { };
+        if(response.StatusCode == HttpStatusCode.NotFound)
+            return null;
+
+        var content =  response.Content;
+        var users = await content.ReadFromJsonAsync<List<User>>();
+
+        return users.ToList();
     }
 }
