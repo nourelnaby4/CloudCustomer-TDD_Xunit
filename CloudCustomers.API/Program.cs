@@ -24,4 +24,5 @@ app.Run();
 void AddDependenciesService(IServiceCollection services)
 {
     services.AddScoped<IUserServices, UserServices>();
+    services.AddHttpClient<IUserServices, UserServices>();
 }

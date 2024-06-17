@@ -1,3 +1,5 @@
+using CloudCustomers.UnitTests.Fixtures;
+
 namespace CloudCustomers.UnitTests.Systems.Controllers;
 
 public class UserControllerTest
@@ -16,7 +18,7 @@ public class UserControllerTest
         var sut = new UsersController(_userServicesMock.Object);
 
         // Act
-        var result =(OkObjectResult) await sut.Get();
+        var result = (OkObjectResult)await sut.Get();
 
         // Assert
         result.StatusCode.Should().Be(200);
@@ -28,15 +30,34 @@ public class UserControllerTest
         var sut = new UsersController(_userServicesMock.Object);
         _userServicesMock
             .Setup(service => service.GetUsers())
-            .ReturnsAsync(new List<User>());
+            .ReturnsAsync(UserFixture.GetUserTests());
 
-        var result= await sut.Get();
+        var result = await sut.Get();
 
-        _userServicesMock.Verify(service => service.GetUsers(),Times.Once());
+        _userServicesMock.Verify(service => service.GetUsers(), Times.Once());
     }
 
     [Fact]
     public async Task Get_OnSuccess_ReturnListOfUsers()
+    {
+        // Arrange
+        var sut = new UsersController(_userServicesMock.Object);
+
+        // Act
+        _userServicesMock
+            .Setup(service => service.GetUsers())
+            .ReturnsAsync(UserFixture.GetUserTests());
+
+        var result = await sut.Get();
+
+        // Assert
+        result.Should().BeOfType<OkObjectResult>();
+        var resultObject = (OkObjectResult)result;
+        resultObject.Value.Should().BeOfType<List<User>>();
+    }
+
+    [Fact]
+    public async Task Get_OnNotFound_ReturnStatusCode404()
     {
         // Arrange
         var sut = new UsersController(_userServicesMock.Object);
@@ -49,9 +70,8 @@ public class UserControllerTest
         var result = await sut.Get();
 
         // Assert
-        result.Should().BeOfType<OkObjectResult>();
-        var resultObject = (OkObjectResult) result;
-        resultObject.Value.Should().BeOfType<List<User>>();
-
+        result.Should().BeOfType<NotFoundResult>();
+        var resultObject = (NotFoundResult)result;
+        resultObject.StatusCode.Should().Be(404);
     }
 }
