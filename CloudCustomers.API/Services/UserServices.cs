@@ -26,12 +26,13 @@ public class UserServices : IUserServices
     {
         var response = await _httpClient.GetAsync(apiConfig.Endpoint);
 
-        if(response.StatusCode == HttpStatusCode.NotFound)
+        if (response.StatusCode == HttpStatusCode.NotFound)
             return null;
 
-        var content =  response.Content;
+        var content = response.Content;
         var users = await content.ReadFromJsonAsync<List<User>>();
 
         return users.ToList();
     }
 }
+

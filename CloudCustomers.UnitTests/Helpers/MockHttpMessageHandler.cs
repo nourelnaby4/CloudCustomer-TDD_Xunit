@@ -17,7 +17,7 @@ public static class MockHttpMessageHandler<T> where T : class
 
         mockResponse.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-        var handlerMock=new Mock<HttpMessageHandler>();
+        var handlerMock = new Mock<HttpMessageHandler>();
 
         handlerMock
             .Protected()
@@ -78,7 +78,5 @@ public static class MockHttpMessageHandler<T> where T : class
             .ReturnsAsync(mockResponse);
 
         return handlerMock;
-       
-
     }
 }

@@ -41,8 +41,8 @@ public class UserServiceTest
     {
         // Arrange
         var expectedResponse = UserFixture.GetUserTests();
-        var endpoint = "http://example.com/users";
-        var handlerMock = MockHttpMessageHandler<User>.SetupBasicResourceList(expectedResponse,endpoint);
+        var endpoint = "https://jsonplaceholder.typicode.com/users";
+        var handlerMock = MockHttpMessageHandler<User>.SetupBasicResourceList(expectedResponse);
         var config = Options.Create(new UserApiOptions
         {
             Endpoint = endpoint
