@@ -51,4 +51,34 @@ public static class MockHttpMessageHandler<T> where T : class
 
         return handlerMock;
     }
+
+    public static Mock<HttpMessageHandler> SetupBasicResourceList(List<User> expectedResponse, string endpoint)
+    {
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(JsonConvert.SerializeObject(expectedResponse))
+        };
+
+        mockResponse.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+        var handlerMock = new Mock<HttpMessageHandler>();
+
+        var httpRequestMessage = new HttpRequestMessage
+        {
+            RequestUri = new Uri(endpoint),
+            Method = HttpMethod.Get,
+        };
+
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+               "SendAsync",
+               httpRequestMessage,
+               ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(mockResponse);
+
+        return handlerMock;
+       
+
+    }
 }

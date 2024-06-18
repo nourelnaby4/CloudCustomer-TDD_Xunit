@@ -1,5 +1,7 @@
-﻿using CloudCustomers.UnitTests.Fixtures;
+﻿using CloudCustomers.API.Config;
+using CloudCustomers.UnitTests.Fixtures;
 using CloudCustomers.UnitTests.Helpers;
+using Microsoft.Extensions.Options;
 using Moq.Protected;
 using System.Net.Http;
 
@@ -13,8 +15,12 @@ public class UserServiceTest
         // Arrange
         var expectedResponse = UserFixture.GetUserTests();
         var handlerMock = MockHttpMessageHandler<User>.SetupBasicResourceList(expectedResponse);
-        var httpClient=new HttpClient(handlerMock.Object);
-        var sut= new UserServices(httpClient);
+        var config = Options.Create(new UserApiOptions
+        {
+            Endpoint = "http://example.com/users"
+        });
+        var httpClient = new HttpClient(handlerMock.Object);
+        var sut = new UserServices(httpClient, config);
 
         // Act
         await sut.GetUsers();
@@ -31,19 +37,51 @@ public class UserServiceTest
     }
 
     [Fact]
+    public async Task GetUsers_WhenCalled_InvokesConfiguredExternalUrl()
+    {
+        // Arrange
+        var expectedResponse = UserFixture.GetUserTests();
+        var endpoint = "http://example.com/users";
+        var handlerMock = MockHttpMessageHandler<User>.SetupBasicResourceList(expectedResponse,endpoint);
+        var config = Options.Create(new UserApiOptions
+        {
+            Endpoint = endpoint
+        });
+        var httpClient = new HttpClient(handlerMock.Object);
+        var sut = new UserServices(httpClient, config);
+
+        // Act
+        var result = await sut.GetUsers();
+
+        // Assert
+        // Assert
+        handlerMock
+            .Protected()
+            .Verify(
+                  "SendAsync",
+                  Times.Exactly(1),
+                  ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get && req.RequestUri.ToString() == endpoint),
+                  ItExpr.IsAny<CancellationToken>());
+    }
+
+    [Fact]
     public async Task GetUsers_OnSuccess_ReturnListOfUsers()
     {
         // Arrange
         var expectedResponse = UserFixture.GetUserTests();
         var handlerMock = MockHttpMessageHandler<User>.SetupBasicResourceList(expectedResponse);
+        var config = Options.Create(new UserApiOptions
+        {
+            Endpoint = "http://example.com/users"
+        });
         var httpClient = new HttpClient(handlerMock.Object);
-        var sut = new UserServices(httpClient);
+        var sut = new UserServices(httpClient, config);
 
         // Act
-      var result=  await sut.GetUsers();
+        var result = await sut.GetUsers();
 
         // Assert
-       result.Should().BeOfType<List<User>>();
+        result.Should().BeOfType<List<User>>();
     }
 
 
@@ -52,8 +90,12 @@ public class UserServiceTest
     {
         // Arrange
         var handlerMock = MockHttpMessageHandler<User>.SetupReturn404();
+        var config = Options.Create(new UserApiOptions
+        {
+            Endpoint = "http://example.com/users"
+        });
         var httpClient = new HttpClient(handlerMock.Object);
-        var sut = new UserServices(httpClient);
+        var sut = new UserServices(httpClient, config);
 
         // Act
         var result = await sut.GetUsers();

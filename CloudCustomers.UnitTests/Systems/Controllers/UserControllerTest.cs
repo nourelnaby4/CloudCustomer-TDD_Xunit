@@ -33,7 +33,7 @@ public class UserControllerTest
         var sut = new UsersController(_userServicesMock.Object);
         _userServicesMock
             .Setup(service => service.GetUsers())
-            .ReturnsAsync(UserFixture.GetUserTests());
+            .ReturnsAsync(new List<User>());
 
         var result = await sut.Get();
 

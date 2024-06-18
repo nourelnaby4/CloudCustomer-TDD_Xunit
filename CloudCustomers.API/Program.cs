@@ -1,3 +1,4 @@
+using CloudCustomers.API.Config;
 using CloudCustomers.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,7 @@ app.Run();
 
 void AddDependenciesService(IServiceCollection services)
 {
+    services.Configure<UserApiOptions>(builder.Configuration.GetSection("UserApiOptions"));
     services.AddScoped<IUserServices, UserServices>();
     services.AddHttpClient<IUserServices, UserServices>();
 }
